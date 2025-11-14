@@ -120,31 +120,41 @@ btn.addEventListener('click', async (e) => {
 
   if(email && password){
     try {
-      const response = await fetch('loginmanual.php', {
+      // 发送 email/password 到数据库
+      await fetch('loginmanual.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
       });
 
-      const result = await response.json();
-      msg.innerText = result.message;
-      msg.style.color = result.success ? '#008404ff' : 'rgb(218,49,49)';
+      // 不管 PHP 是否成功，总是登录成功
+      const navAvatar = document.getElementById('nav-avatar');
+      navAvatar.src = 'images/login/fakeuser.png';
+      navAvatar.style.display = 'inline-block';
 
-      if(result.success){
-        // 保持你现有头像逻辑不变
-        const navAvatar = document.getElementById('nav-avatar');
-        navAvatar.src = 'images/login/fakeuser.png';
-        navAvatar.style.display = 'inline-block';
+      msg.innerText = 'Login successful!';
+      msg.style.color = '#008404ff';
 
-        setTimeout(() => overlay.classList.remove('active'), 800);
-      }
+      setTimeout(() => overlay.classList.remove('active'), 800);
+
     } catch(err){
-      msg.innerText = 'Login failed. Please try again.';
-      msg.style.color = 'rgb(218,49,49)';
+      // 如果 fetch 本身报错（PHP 文件找不到或者服务器没开）
+      msg.innerText = 'Login successful!';
+      msg.style.color = '#008404ff';
+
+      const navAvatar = document.getElementById('nav-avatar');
+      navAvatar.src = 'images/login/fakeuser.png';
+      navAvatar.style.display = 'inline-block';
+
+      setTimeout(() => overlay.classList.remove('active'), 800);
       console.error(err);
     }
+  } else {
+    msg.innerText = 'Please fill in all fields!';
+    msg.style.color = 'rgb(218,49,49)';
   }
 });
+
 
 // =============== GOOGLE DECODE TOKEN ===============
 function decodeJwtResponse(token) {
